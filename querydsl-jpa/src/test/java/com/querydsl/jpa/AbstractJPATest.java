@@ -13,8 +13,8 @@
  */
 package com.querydsl.jpa;
 
-import static org.junit.Assert.*;
 import static com.querydsl.core.Target.*;
+import static org.junit.Assert.*;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -22,6 +22,9 @@ import java.util.*;
 import java.util.Calendar;
 import java.util.Map.Entry;
 
+import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
+import org.joda.time.LocalTime;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -33,17 +36,17 @@ import com.querydsl.core.*;
 import com.querydsl.core.group.Group;
 import com.querydsl.core.group.GroupBy;
 import com.querydsl.core.group.QPair;
+import com.querydsl.core.support.Expressions;
+import com.querydsl.core.testutil.ExcludeIn;
+import com.querydsl.core.types.*;
+import com.querydsl.core.types.expr.*;
+import com.querydsl.core.types.path.*;
+import com.querydsl.core.types.template.NumberTemplate;
 import com.querydsl.jpa.domain.*;
 import com.querydsl.jpa.domain.Company.Rating;
 import com.querydsl.jpa.domain4.QBookMark;
 import com.querydsl.jpa.domain4.QBookVersion;
 import com.querydsl.jpa.hibernate.HibernateSubQuery;
-import com.querydsl.core.support.Expressions;
-import com.querydsl.core.types.*;
-import com.querydsl.core.types.expr.*;
-import com.querydsl.core.types.path.*;
-import com.querydsl.core.types.template.NumberTemplate;
-import com.querydsl.core.testutil.ExcludeIn;
 
 import antlr.RecognitionException;
 import antlr.TokenStreamException;
@@ -302,23 +305,77 @@ public abstract class AbstractJPATest {
     @Test
     @NoBatooJPA
     public void Case() {
-        query().from(cat).list(cat.name.when("Bob").then(1).otherwise(2));
+        List<Integer> rv = query().from(cat).list(cat.name.when("Bob").then(1).otherwise(2));
+        assertInstancesOf(Integer.class, rv);
+    }
+
+    @Test
+    @NoEclipseLink
+    public void Case_Date() {
+        List<LocalDate> rv = query().from(cat).list(cat.name.when("Bob").then(new LocalDate())
+                .otherwise(new LocalDate().plusDays(1)));
+        assertInstancesOf(LocalDate.class, rv);
+    }
+
+    @Test
+    public void Case_Date2() {
+        List<java.sql.Date> rv = query().from(cat).list(cat.name.when("Bob").then(new java.sql.Date(0))
+                .otherwise(new java.sql.Date(0)));
+        assertInstancesOf(java.sql.Date.class, rv);
+    }
+
+    @Test
+    @NoEclipseLink
+    public void Case_Time() {
+        List<LocalTime> rv = query().from(cat).list(cat.name.when("Bob").then(new LocalTime())
+                .otherwise(new LocalTime().plusHours(1)));
+        assertInstancesOf(LocalTime.class, rv);
+    }
+
+    @Test
+    public void Case_Time2() {
+        List<java.sql.Time> rv = query().from(cat).list(cat.name.when("Bob").then(new java.sql.Time(0))
+                .otherwise(new java.sql.Time(0)));
+        assertInstancesOf(java.sql.Time.class, rv);
+    }
+
+    @Test
+    @NoEclipseLink
+    public void Case_Timestamp() {
+        List<DateTime> rv = query().from(cat).list(cat.name.when("Bob").then(new DateTime())
+                .otherwise(new DateTime().plusHours(1)));
+        assertInstancesOf(DateTime.class, rv);
+    }
+
+    @Test
+    public void Case_Timestamp2() {
+        List<java.util.Date> rv = query().from(cat).list(cat.name.when("Bob").then(new java.util.Date())
+                .otherwise(new java.util.Date()));
+        assertInstancesOf(java.util.Date.class, rv);
     }
 
     @Test
     public void Case2() {
-        query().from(cat)
+        List<Integer> rv = query().from(cat)
             .list(Expressions.cases().when(cat.toes.eq(2)).then(cat.id.multiply(2))
                     .when(cat.toes.eq(3)).then(cat.id.multiply(3))
                     .otherwise(4));
+        assertInstancesOf(Integer.class, rv);
     }
 
     @Test
     public void Case3() {
-        query().from(cat)
+        List<Integer> rv = query().from(cat)
             .list(Expressions.cases()
                     .when(cat.toes.in(2, 3)).then(cat.id.multiply(cat.toes))
                     .otherwise(4));
+        assertInstancesOf(Integer.class, rv);
+    }
+
+    private static <T> void assertInstancesOf(Class<T> clazz, Iterable<T> rows) {
+        for (T row : rows) {
+            assertEquals(row.toString(), clazz, row.getClass());
+        }
     }
 
     @Test
