@@ -2,7 +2,6 @@ package com.querydsl.sql.types;
 
 import java.sql.*;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 
 import javax.annotation.Nullable;
 
@@ -15,8 +14,6 @@ import org.codehaus.mojo.animal_sniffer.IgnoreJRERequirement;
 @IgnoreJRERequirement //conditionally included
 public class JSR310LocalDateType extends AbstractJSR310DateTimeType<LocalDate> {
 
-    private static final DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE;
-
     public JSR310LocalDateType() {
         super(Types.DATE);
     }
@@ -27,7 +24,7 @@ public class JSR310LocalDateType extends AbstractJSR310DateTimeType<LocalDate> {
 
     @Override
     public String getLiteral(LocalDate value) {
-        return formatter.format(value);
+        return dateFormatter.format(value);
     }
 
     @Override

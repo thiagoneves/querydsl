@@ -3,7 +3,6 @@ package com.querydsl.sql.types;
 import java.sql.*;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 
 import javax.annotation.Nullable;
 
@@ -16,7 +15,6 @@ import org.codehaus.mojo.animal_sniffer.IgnoreJRERequirement;
 @IgnoreJRERequirement //conditionally included
 public class JSR310ZonedDateTimeType extends AbstractJSR310DateTimeType<ZonedDateTime> {
 
-    private static final DateTimeFormatter formatter = DateTimeFormatter.ISO_ZONED_DATE_TIME;
 
     public JSR310ZonedDateTimeType() {
         super(Types.TIMESTAMP);
@@ -28,7 +26,7 @@ public class JSR310ZonedDateTimeType extends AbstractJSR310DateTimeType<ZonedDat
 
     @Override
     public String getLiteral(ZonedDateTime value) {
-        return formatter.format(value);
+        return dateTimeFormatter.format(value);
     }
 
     @Override

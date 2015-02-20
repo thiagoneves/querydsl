@@ -2,7 +2,6 @@ package com.querydsl.sql.types;
 
 import java.sql.*;
 import java.time.Instant;
-import java.time.format.DateTimeFormatter;
 
 import javax.annotation.Nullable;
 
@@ -15,8 +14,6 @@ import org.codehaus.mojo.animal_sniffer.IgnoreJRERequirement;
 @IgnoreJRERequirement //conditionally included
 public class JSR310InstantType extends AbstractJSR310DateTimeType<Instant> {
 
-    private static final DateTimeFormatter formatter = DateTimeFormatter.ISO_INSTANT;
-
     public JSR310InstantType() {
         super(Types.TIMESTAMP);
     }
@@ -27,7 +24,7 @@ public class JSR310InstantType extends AbstractJSR310DateTimeType<Instant> {
 
     @Override
     public String getLiteral(Instant value) {
-        return formatter.format(value);
+        return dateTimeFormatter.format(value);
     }
 
     @Override
