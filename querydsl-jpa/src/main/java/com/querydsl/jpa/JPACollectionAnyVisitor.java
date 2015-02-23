@@ -21,6 +21,7 @@ import com.querydsl.core.types.*;
 import com.querydsl.core.types.dsl.EntityPathBase;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.SimplePath;
+import com.querydsl.jpa.impl.JPAQuery;
 
 /**
  * JPACollectionAnyVisitor extends the {@link CollectionAnyVisitor} class with module specific
@@ -34,7 +35,7 @@ public final class JPACollectionAnyVisitor extends CollectionAnyVisitor {
     @SuppressWarnings("unchecked")
     @Override
     protected Predicate exists(Context c, Predicate condition) {
-        JPASubQuery query = new JPASubQuery();
+        JPAQuery<Void> query = new JPAQuery<Void>();
         for (int i = 0; i < c.paths.size(); i++) {
             Path<?> child = c.paths.get(i).getMetadata().getParent();
             EntityPath<Object> replacement = (EntityPath<Object>) c.replacements.get(i);
@@ -53,7 +54,8 @@ public final class JPACollectionAnyVisitor extends CollectionAnyVisitor {
         }
         c.clear();
         query.where(condition);
-        return query.exists();
+        //return query.exists();
+        return ExpressionUtils.predicate(Ops.EXISTS, query);
     }
 
 }

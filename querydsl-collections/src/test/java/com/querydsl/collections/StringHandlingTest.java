@@ -44,7 +44,7 @@ public class StringHandlingTest extends AbstractQueryTest {
         for (Tuple arr : query()
                 .from(a, data1)
                 .from(b, data2)
-                .where(a.equalsIgnoreCase(b)).list(a, b)) {
+                .where(a.equalsIgnoreCase(b)).select(a, b).list()) {
             assertEquals(res.next(), arr.get(a) + " - " + arr.get(b));
         }
     }

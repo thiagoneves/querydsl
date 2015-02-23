@@ -55,7 +55,7 @@ public class LeftJoinTest extends AbstractQueryTest {
             .leftJoin(cat.kittens, kitten)
             .where(kitten.isNotNull(), cat.name.eq(kitten.name))
             .orderBy(cat.name.asc())
-            .list(cat);
+            .list();
         
         assertEquals(1, rv.size());
         assertEquals("Bob", rv.get(0).getName());
@@ -68,7 +68,7 @@ public class LeftJoinTest extends AbstractQueryTest {
         List<Cat> rv =  CollQueryFactory.from($(cc), cats)
                         .leftJoin($(cc.getKittens()), $(ck))
                         .where($(ck).isNotNull(), $(cc.getName()).eq($(ck.getName())))
-                        .list($(cc));
+                        .list();
         assertFalse(rv.isEmpty());
     }
 
@@ -79,7 +79,7 @@ public class LeftJoinTest extends AbstractQueryTest {
             .leftJoin(cat.kittensByName, kitten)
             .where(cat.name.eq(kitten.name))
             .orderBy(cat.name.asc())
-            .list(cat);
+            .list();
         assertEquals("Bob", rv.get(0).getName());
         assertEquals("Kate", rv.get(1).getName());
     }

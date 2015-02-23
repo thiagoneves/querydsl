@@ -19,6 +19,7 @@ import org.junit.Test;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.SubQueryExpression;
 import com.querydsl.jpa.domain.QCat;
+import com.querydsl.jpa.hibernate.HibernateQuery;
 import com.querydsl.jpa.hibernate.HibernateSubQuery;
 
 public class TupleTest extends AbstractQueryTest {
@@ -32,7 +33,7 @@ public class TupleTest extends AbstractQueryTest {
         .where(subQuery()
                 .from(cat)
                 .groupBy(cat.mate)
-                .list(cat.mate, cat.birthdate.max())
+                .select(cat.mate, cat.birthdate.max())
                 .contains(Projections.tuple(cat.mate, cat.birthdate)))
         .list(Projections.tuple(cat.birthdate, cat.name, cat.mate));
         
@@ -42,8 +43,8 @@ public class TupleTest extends AbstractQueryTest {
                     "(select cat.mate, max(cat.birthdate) from Cat cat group by cat.mate))", subQuery);
     }
 
-    private HibernateSubQuery subQuery() {
-        return new HibernateSubQuery();
+    private HibernateQuery<Void> subQuery() {
+        return new HibernateQuery<Void>();
     }
     
 }

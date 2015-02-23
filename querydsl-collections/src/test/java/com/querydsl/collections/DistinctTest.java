@@ -32,19 +32,19 @@ public class DistinctTest extends AbstractQueryTest {
 
     @Test
     public void SingleSource() {
-        assertEquals(list1, CollQueryFactory.from(intVar1, list1).list(intVar1));
-        assertEquals(Arrays.asList(1, 2, 3, 4), CollQueryFactory.from(intVar1, list1).distinct().list(intVar1));
-        assertEquals(Arrays.asList(2, 3, 4), CollQueryFactory.from(intVar2, list2).distinct().list(intVar2));
+        assertEquals(list1, CollQueryFactory.from(intVar1, list1).list());
+        assertEquals(Arrays.asList(1, 2, 3, 4), CollQueryFactory.from(intVar1, list1).distinct().list());
+        assertEquals(Arrays.asList(2, 3, 4), CollQueryFactory.from(intVar2, list2).distinct().list());
 
-        assertEquals(Arrays.asList(2, 3, 4), CollQueryFactory.from(intVar2, list2).distinct().list(intVar2));
+        assertEquals(Arrays.asList(2, 3, 4), CollQueryFactory.from(intVar2, list2).distinct().list());
     }
 
     @Test
     public void BothSources() {
-        assertEquals(100, CollQueryFactory.from(intVar1, list1).from(intVar2, list2).list(intVar1, intVar2).size());
-        assertEquals(12, CollQueryFactory.from(intVar1, list1).from(intVar2, list2).distinct().list(intVar1, intVar2).size());
+        assertEquals(100, CollQueryFactory.from(intVar1, list1).from(intVar2, list2).select(intVar1, intVar2).list().size());
+        assertEquals(12, CollQueryFactory.from(intVar1, list1).from(intVar2, list2).distinct().select(intVar1, intVar2).list().size());
 
-        assertEquals(12, CollQueryFactory.from(intVar1, list1).from(intVar2, list2).distinct().list(intVar1, intVar2).size());
+        assertEquals(12, CollQueryFactory.from(intVar1, list1).from(intVar2, list2).distinct().select(intVar1, intVar2).list().size());
     }
 
     @Test
@@ -58,7 +58,7 @@ public class DistinctTest extends AbstractQueryTest {
 
     @Test
     public void Null() {
-        CollQueryFactory.from(intVar1, Arrays.asList(null, 1)).distinct().list(intVar1);
+        CollQueryFactory.from(intVar1, Arrays.asList(null, 1)).distinct().list();
     }
 
 }

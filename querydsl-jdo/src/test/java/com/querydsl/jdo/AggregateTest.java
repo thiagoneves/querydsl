@@ -31,17 +31,17 @@ public class AggregateTest extends AbstractJDOTest{
     @Test
     public void Unique() {
         double min = 200.00, avg = 400.00, max = 600.00;
-        assertEquals(Double.valueOf(min), query().from(product).uniqueResult(product.price.min()));
-        assertEquals(Double.valueOf(avg), query().from(product).uniqueResult(product.price.avg()));
-        assertEquals(Double.valueOf(max), query().from(product).uniqueResult(product.price.max()));
+        assertEquals(Double.valueOf(min), query().from(product).select(product.price.min()).uniqueResult());
+        assertEquals(Double.valueOf(avg), query().from(product).select(product.price.avg()).uniqueResult());
+        assertEquals(Double.valueOf(max), query().from(product).select(product.price.max()).uniqueResult());
     }
 
     @Test
     public void List() {
         double min = 200.00, avg = 400.00, max = 600.00;
-        assertEquals(Double.valueOf(min), query().from(product).list(product.price.min()).get(0));
-        assertEquals(Double.valueOf(avg), query().from(product).list(product.price.avg()).get(0));
-        assertEquals(Double.valueOf(max), query().from(product).list(product.price.max()).get(0));        
+        assertEquals(Double.valueOf(min), query().from(product).select(product.price.min()).list().get(0));
+        assertEquals(Double.valueOf(avg), query().from(product).select(product.price.avg()).list().get(0));
+        assertEquals(Double.valueOf(max), query().from(product).select(product.price.max()).list().get(0));
     }
     
     @BeforeClass

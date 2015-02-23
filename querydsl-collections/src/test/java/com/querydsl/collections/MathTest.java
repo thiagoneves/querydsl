@@ -63,7 +63,7 @@ public class MathTest {
         
     private <T> T unique(Expression<T> expr) {
         //return query().uniqueResult(expr);
-        return CollQueryFactory.from(num, Arrays.asList(0.5)).uniqueResult(expr);
+        return CollQueryFactory.from(num, Arrays.asList(0.5)).select(expr).uniqueResult();
     }
 
 }

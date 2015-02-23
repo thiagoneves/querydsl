@@ -13,19 +13,16 @@
  */
 package com.querydsl.core.support;
 
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.annotation.Nullable;
 
 import com.mysema.commons.lang.CloseableIterator;
 import com.mysema.commons.lang.IteratorAdapter;
-import com.querydsl.core.NonUniqueResultException;
-import com.querydsl.core.Projectable;
-import com.querydsl.core.ResultTransformer;
-import com.querydsl.core.Tuple;
+import com.querydsl.core.*;
 import com.querydsl.core.types.Expression;
+import com.querydsl.core.types.SubQueryExpression;
+import com.querydsl.core.types.Visitor;
 
 /**
  * ProjectableQuery extends the {@link QueryBase} class to provide default
@@ -33,51 +30,29 @@ import com.querydsl.core.types.Expression;
  *
  * @author tiwe
  */
-public abstract class ProjectableQuery<Q extends ProjectableQuery<Q>>
-        extends QueryBase<Q> implements Projectable {
+public abstract class ProjectableQueryBase<T, Q extends ProjectableQueryBase<T, Q>>
+        extends QueryBase<Q> implements SubQueryExpression<T>, Projectable<T> {
 
-    public ProjectableQuery(QueryMixin<Q> queryMixin) {
+    public ProjectableQueryBase(QueryMixin<Q> queryMixin) {
         super(queryMixin);
     }
 
     @Override
-    public List<Tuple> list(Expression<?>... args) {
-        return IteratorAdapter.asList(iterate(args));
+    public List<T> list() {
+        return IteratorAdapter.asList(iterate());
     }
 
-    @Override
-    public <RT> List<RT> list(Expression<RT> projection) {
-        return IteratorAdapter.asList(iterate(projection));
-    }
-
-    @Override
-    public final <K, V> Map<K, V> map(Expression<K> key, Expression<V> value) {
-        List<Tuple> list = list(key, value);
-        Map<K, V> results = new LinkedHashMap<K, V>(list.size());
-        for (Tuple row : list) {
-            results.put(row.get(key), row.get(value));
-        }
-        return results;
-    }
-
-    @Override
     public final boolean notExists() {
         return !exists();
     }
 
     @Override
-    public final Tuple singleResult(Expression<?>... args) {
-        return limit(1).uniqueResult(args);
+    public final T firstResult() {
+        return limit(1).uniqueResult();
     }
 
-    @Override
-    public final <RT> RT singleResult(Expression<RT> expr) {
-        return limit(1).uniqueResult(expr);
-    }
-
-    @Override
     public <T> T transform(ResultTransformer<T> transformer) {
-        return transformer.transform(this);
+        return transformer.transform((ProjectableQuery)this);
     }
     
     @Nullable
@@ -95,6 +70,39 @@ public abstract class ProjectableQuery<Q extends ProjectableQuery<Q>>
         }finally{
             it.close();
         }
+    }
+
+    @Override
+    public final boolean equals(Object o) {
+        if (o == this) {
+            return true;
+        } else if (o instanceof SubQueryExpression) {
+            SubQueryExpression<?> s = (SubQueryExpression<?>)o;
+            return s.getMetadata().equals(queryMixin.getMetadata());
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public final int hashCode() {
+        return queryMixin.getMetadata().hashCode();
+    }
+
+    @Override
+    public final QueryMetadata getMetadata() {
+        return queryMixin.getMetadata();
+    }
+
+    @Override
+    public final <R, C> R accept(Visitor<R, C> v, C context) {
+        return v.visit(this, context);
+    }
+
+    @Override
+    public Class<T> getType() {
+        Expression<?> projection = queryMixin.getMetadata().getProjection();
+        return (Class) (projection != null ? projection.getType() : Void.class);
     }
 
 

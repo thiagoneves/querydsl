@@ -46,7 +46,7 @@ import org.junit.Test;
 import com.querydsl.core.NonUniqueResultException;
 import com.querydsl.core.QueryException;
 import com.querydsl.core.QueryModifiers;
-import com.querydsl.core.SearchResults;
+import com.querydsl.core.QueryResults;
 import com.querydsl.core.types.ParamNotSetException;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.NumberPath;
@@ -432,21 +432,21 @@ public class LuceneQueryTest {
 
     @Test
     public void Load_SingleResult() {
-        Document document = query.where(title.ne("")).load(title).singleResult();
+        Document document = query.where(title.ne("")).load(title).firstResult();
         assertNotNull(document.get("title"));
         assertNull(document.get("year"));
     }
 
     @Test
     public void Load_SingleResult_FieldSelector() {
-        Document document = query.where(title.ne("")).load(new MapFieldSelector("title")).singleResult();
+        Document document = query.where(title.ne("")).load(new MapFieldSelector("title")).firstResult();
         assertNotNull(document.get("title"));
         assertNull(document.get("year"));
     }
 
     @Test
     public void SingleResult() {
-        assertNotNull(query.where(title.ne("")).singleResult());
+        assertNotNull(query.where(title.ne("")).firstResult());
     }
 
     @Test
@@ -454,30 +454,30 @@ public class LuceneQueryTest {
         assertEquals("Jurassic Park", query
                                         .where(title.ne(""))
                                         .limit(1)
-                                        .singleResult().get("title"));
+                                        .firstResult().get("title"));
     }
 
     @Test
     public void Single_Result_Considers_Limit_And_Actual_Result_Size() {
         query.where(title.startsWith("Nummi"));
-        final Document document = query.limit(3).singleResult();
+        final Document document = query.limit(3).firstResult();
         assertEquals("Nummisuutarit", document.get("title"));
     }
 
     @Test
     public void Single_Result_Returns_Null_If_Nothing_Is_In_Range() {
         query.where(title.startsWith("Nummi"));
-        assertNull(query.offset(10).singleResult());
+        assertNull(query.offset(10).firstResult());
     }
 
     @Test
     public void Single_Result_Considers_Offset() {
-        assertEquals("Introduction to Algorithms", query.where(title.ne("")).offset(3).singleResult().get("title"));
+        assertEquals("Introduction to Algorithms", query.where(title.ne("")).offset(3).firstResult().get("title"));
     }
 
     @Test
     public void Single_Result_Considers_Limit_And_Offset() {
-        assertEquals("The Lord of the Rings", query.where(title.ne("")).limit(1).offset(2).singleResult().get("title"));
+        assertEquals("The Lord of the Rings", query.where(title.ne("")).limit(1).offset(2).firstResult().get("title"));
     }
 
     @Test(expected=NonUniqueResultException.class)
@@ -602,7 +602,7 @@ public class LuceneQueryTest {
         query.where(year.between(1800, 2000));
         query.restrict(new QueryModifiers(2l, 1l));
         query.orderBy(year.asc());
-        final SearchResults<Document> results = query.listResults();
+        final QueryResults<Document> results = query.listResults();
         assertFalse(results.isEmpty());
         assertEquals("1954", results.getResults().get(0).get("year"));
         assertEquals("1990", results.getResults().get(1).get("year"));
@@ -617,7 +617,7 @@ public class LuceneQueryTest {
                 title.eq("The Lord of the Rings")));
         query.restrict(new QueryModifiers(1l, 1l));
         query.orderBy(year.asc());
-        final SearchResults<Document> results = query.distinct().listResults();
+        final QueryResults<Document> results = query.distinct().listResults();
         assertFalse(results.isEmpty());
         assertEquals("1954", results.getResults().get(0).get("year"));
         assertEquals(1, results.getLimit());

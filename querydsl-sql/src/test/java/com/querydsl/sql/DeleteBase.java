@@ -13,21 +13,23 @@
  */
 package com.querydsl.sql;
 
+import static com.querydsl.core.Target.*;
+import static com.querydsl.sql.Constants.survey;
+import static org.junit.Assert.assertEquals;
+
 import java.sql.SQLException;
 
-import com.querydsl.sql.dml.SQLDeleteClause;
-import com.querydsl.sql.domain.QEmployee;
-import com.querydsl.sql.domain.QSurvey;
-import com.querydsl.core.types.dsl.Expressions;
-import com.querydsl.core.types.dsl.Param;
-import com.querydsl.core.testutil.ExcludeIn;
-import com.querydsl.core.testutil.IncludeIn;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import static com.querydsl.sql.Constants.survey;
-import static com.querydsl.core.Target.*;
-import static org.junit.Assert.assertEquals;
+
+import com.querydsl.core.testutil.ExcludeIn;
+import com.querydsl.core.testutil.IncludeIn;
+import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.core.types.dsl.Param;
+import com.querydsl.sql.dml.SQLDeleteClause;
+import com.querydsl.sql.domain.QEmployee;
+import com.querydsl.sql.domain.QSurvey;
 
 public class DeleteBase extends AbstractBaseTest{
 
@@ -93,7 +95,7 @@ public class DeleteBase extends AbstractBaseTest{
         QEmployee employee = new QEmployee("e");
         SQLDeleteClause delete = delete(survey1);
         delete.where(survey1.name.eq("XXX"),
-                sq().from(employee).where(survey1.id.eq(employee.id)).exists());
+                exists(query().from(employee).where(survey1.id.eq(employee.id))));
         delete.execute();
     }
 
@@ -103,11 +105,11 @@ public class DeleteBase extends AbstractBaseTest{
         QEmployee employee = new QEmployee("e");
 
         Param<Integer> param = new Param<Integer>(Integer.class, "param");
-        SQLSubQuery sq = sq().from(employee).where(employee.id.eq(param));
+        SQLQuery<Void> sq = query().from(employee).where(employee.id.eq(param));
         sq.set(param, -12478923);
 
         SQLDeleteClause delete = delete(survey1);
-        delete.where(survey1.name.eq("XXX"), sq.exists());
+        delete.where(survey1.name.eq("XXX"), exists(sq));
         delete.execute();
     }
 
@@ -117,7 +119,7 @@ public class DeleteBase extends AbstractBaseTest{
         QEmployee employee = new QEmployee("e");
         SQLDeleteClause delete = delete(survey1);
         delete.where(survey1.name.eq("XXX"),
-                sq().from(employee).where(survey1.name.eq(employee.lastname)).exists());
+                exists(query().from(employee).where(survey1.name.eq(employee.lastname))));
         delete.execute();
     }
 

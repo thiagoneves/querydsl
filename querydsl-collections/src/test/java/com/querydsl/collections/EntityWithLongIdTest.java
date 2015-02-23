@@ -20,10 +20,10 @@ public class EntityWithLongIdTest {
     @Test
     public void SimpleEquals() {
         QEntityWithLongId root = QEntityWithLongId.entityWithLongId;
-        CollQuery query = new CollQuery().from(root, entities);
+        CollQuery<?> query = new CollQuery<Void>().from(root, entities);
         query.where(root.id.eq(1000L));
 
-        Long found = query.singleResult(root.id);
+        Long found = query.select(root.id).firstResult();
         assertNotNull(found);
         assertEquals(found.longValue(), 1000);
     }
@@ -32,7 +32,7 @@ public class EntityWithLongIdTest {
     public void CartesianEquals() {
         QEntityWithLongId root = new QEntityWithLongId("root1");
         QEntityWithLongId root2 = new QEntityWithLongId("root2");
-        assertEquals(entities.size(), new CollQuery()
+        assertEquals(entities.size(), new CollQuery<Void>()
             .from(root, entities).from(root2, entities)
             .where(root2.id.eq(root.id))
             .count());
@@ -42,7 +42,7 @@ public class EntityWithLongIdTest {
     public void CartesianPlus1() {
         QEntityWithLongId root = new QEntityWithLongId("root1");
         QEntityWithLongId root2 = new QEntityWithLongId("root2");
-        assertEquals(2, new CollQuery()
+        assertEquals(2, new CollQuery<Void>()
             .from(root, entities).from(root2, entities)
             .where(root2.id.eq(root.id.add(1)))
             .count());

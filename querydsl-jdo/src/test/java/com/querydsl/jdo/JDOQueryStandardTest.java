@@ -26,9 +26,11 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import com.mysema.commons.lang.Pair;
 import com.querydsl.core.*;
-import com.querydsl.core.types.*;
+import com.querydsl.core.types.ArrayConstructorExpression;
+import com.querydsl.core.types.ConstructorExpression;
+import com.querydsl.core.types.ParamNotSetException;
+import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.Param;
 import com.querydsl.jdo.test.domain.Product;
 import com.querydsl.jdo.test.domain.QProduct;
@@ -98,16 +100,13 @@ public class JDOQueryStandardTest extends AbstractJDOTest {
 
     private final QueryExecution standardTest = new QueryExecution(Module.JDO, Target.H2) {
         @Override
-        protected Pair<Projectable, Expression<?>[]> createQuery() {
-            return Pair.of(
-                (Projectable)query().from(store, product, otherProduct),
-                new Expression<?>[]{store, product, otherProduct});
+        protected Projectable createQuery() {
+            return query().from(store, product, otherProduct).select(store, product, otherProduct);
         }
         @Override
-        protected Pair<Projectable, Expression<?>[]> createQuery(Predicate filter) {
-            return Pair.of(
-                (Projectable)query().from(store, product, otherProduct).where(filter),
-                new Expression<?>[]{store, product, otherProduct});
+        protected Projectable createQuery(Predicate filter) {
+            return query().from(store, product, otherProduct).where(filter)
+                .select(store, product, otherProduct);
         }
     };
 
@@ -121,8 +120,8 @@ public class JDOQueryStandardTest extends AbstractJDOTest {
 
     @Test
     public void StandardTest() {
-        Product p = query().from(product).where(product.name.eq(productName)).limit(1).uniqueResult(product);
-        Product p2 = query().from(product).where(product.name.startsWith(otherName)).limit(1).uniqueResult(product);
+        Product p = query().from(product).where(product.name.eq(productName)).limit(1).select(product).uniqueResult();
+        Product p2 = query().from(product).where(product.name.startsWith(otherName)).limit(1).select(product).uniqueResult();
         standardTest.noProjections();
         standardTest.noCounts();
 
@@ -143,7 +142,7 @@ public class JDOQueryStandardTest extends AbstractJDOTest {
 
     @Test
     public void TupleProjection() {
-        List<Tuple> tuples = query().from(product).list(product.name, product.price);
+        List<Tuple> tuples = query().from(product).select(product.name, product.price).list();
         assertFalse(tuples.isEmpty());
         for (Tuple tuple : tuples) {
             assertNotNull(tuple);
@@ -160,7 +159,7 @@ public class JDOQueryStandardTest extends AbstractJDOTest {
     public void ArrayProjection() {
         // typed array not supported
         List<String[]> results = query().from(store)
-                .list(new ArrayConstructorExpression<String>(String[].class, store.name));
+                .select(new ArrayConstructorExpression<String>(String[].class, store.name)).list();
         assertFalse(results.isEmpty());
         for (String[] result : results) {
             assertNotNull(result);
@@ -172,7 +171,7 @@ public class JDOQueryStandardTest extends AbstractJDOTest {
     @Ignore
     public void ConstructorProjection() {
         List<Projection> results = query().from(store)
-                .list(ConstructorExpression.create(Projection.class, store.name));
+                .select(ConstructorExpression.create(Projection.class, store.name)).list();
         assertFalse(results.isEmpty());
         for (Projection result : results) {
             assertNotNull(result);
@@ -183,21 +182,21 @@ public class JDOQueryStandardTest extends AbstractJDOTest {
     public void Params() {
         Param<String> name = new Param<String>(String.class,"name");
         assertEquals("ABC0",query().from(product).where(product.name.eq(name)).set(name, "ABC0")
-                .uniqueResult(product.name));
+                .select(product.name).firstResult());
     }
 
     @Test
     public void Params_anon() {
         Param<String> name = new Param<String>(String.class);
         assertEquals("ABC0",query().from(product).where(product.name.eq(name)).set(name, "ABC0")
-                .uniqueResult(product.name));
+                .select(product.name).firstResult());
     }
 
     @Test(expected=ParamNotSetException.class)
     public void Params_not_set() {
         Param<String> name = new Param<String>(String.class,"name");
         assertEquals("ABC0",query().from(product).where(product.name.eq(name))
-                .uniqueResult(product.name));
+                .select(product.name).firstResult());
     }
 
     @Test

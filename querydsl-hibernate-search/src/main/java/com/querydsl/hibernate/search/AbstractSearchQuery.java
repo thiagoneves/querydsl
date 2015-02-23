@@ -34,7 +34,7 @@ import com.querydsl.lucene3.LuceneSerializer;
 /**
  * Abstract base class for Hibernate Search query classes
  */
-public abstract class AbstractSearchQuery<T, Q extends AbstractSearchQuery<T,Q>> implements SimpleQuery<Q>, SimpleProjectable<T> {
+public abstract class AbstractSearchQuery<T, Q extends AbstractSearchQuery<T,Q>> implements SimpleQuery<Q>, Projectable<T> {
 
     private final EntityPath<T> path;
 
@@ -137,9 +137,9 @@ public abstract class AbstractSearchQuery<T, Q extends AbstractSearchQuery<T,Q>>
 
     @SuppressWarnings("unchecked")
     @Override
-    public SearchResults<T> listResults() {
+    public QueryResults<T> listResults() {
         FullTextQuery query = createQuery(false);
-        return new SearchResults<T>(query.list(), queryMixin.getMetadata().getModifiers(), query.getResultSize());
+        return new QueryResults<T>(query.list(), queryMixin.getMetadata().getModifiers(), query.getResultSize());
     }
 
     @Override
@@ -163,7 +163,7 @@ public abstract class AbstractSearchQuery<T, Q extends AbstractSearchQuery<T,Q>>
     }
 
     @Override
-    public T singleResult() {
+    public T firstResult() {
         return limit(1).uniqueResult();
     }
 

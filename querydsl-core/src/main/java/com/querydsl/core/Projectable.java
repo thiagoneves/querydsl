@@ -14,29 +14,18 @@
 package com.querydsl.core;
 
 import java.util.List;
-import java.util.Map;
 
-import javax.annotation.Nonnegative;
 import javax.annotation.Nullable;
 
 import com.mysema.commons.lang.CloseableIterator;
-import com.querydsl.core.types.Expression;
 
 /**
  * Projectable defines default projection methods for {@link Query} implementations.
- * All Querydsl query implementations should implement either this interface or
- * {@link SimpleProjectable}.
+ * All Querydsl query implementations should implement this interface.
  *
  * @author tiwe
- * @see SimpleProjectable
  */
-public interface Projectable {
-    /**
-     * return the amount of matched rows
-     */
-    @Nonnegative
-    long count();
-
+public interface Projectable<T> {
     /**
      * @return true, if rows matching the given criteria exist, otherwise false
      */
@@ -48,140 +37,48 @@ public interface Projectable {
     boolean notExists();
 
     /**
-     * iterate over the results for the given projection
+     * Get the projection as a typed closeable Iterator
      *
-     * @param args
      * @return
      */
-    CloseableIterator<Tuple> iterate(Expression<?>... args);
+    CloseableIterator<T> iterate();
 
     /**
-     * iterate over the results for the given projection
+     * Get the projection as a typed List
      *
-     * @param <RT>
-     *            generic type of the Iterator
-     * @param projection
-     * @return an Iterator over the projection
-     */
-    <RT> CloseableIterator<RT> iterate(Expression<RT> projection);
-
-    /**
-     * list the results for the given projection
-     * 
-     * An empty list is returned for no results.
-     *
-     * @param args
      * @return
      */
-    List<Tuple> list(Expression<?>... args);
+    List<T> list();
 
     /**
-     * list the results for the given projection
-     * 
-     * An empty list is returned for no results.
+     * Get the first result of Get the projection or null if no result is found
      *
-     * @param <RT>
-     *            generic type of the List
-     * @param projection
-     * @return a List over the projection
-     */
-    <RT> List<RT> list(Expression<RT> projection);
-
-    /**
-     * list the results for the given projection
-     *
-     * @param args
-     * @return
-     */
-     SearchResults<Tuple> listResults(Expression<?>... args);
-    
-    /**
-     * list the results for the given projection
-     *
-     * @param <RT>
-     * @param projection
-     * @return
-     */
-    <RT> SearchResults<RT> listResults(Expression<RT> projection);
-
-    /**
-     * return the given projection as a Map instance using key and value for Map population
-     *
-     * An empty map is returned for no results.
-     *
-     * @param <K>
-     * @param <V>
-     * @param key
-     * @param value
-     * @return
-     */
-    <K,V> Map<K,V> map(Expression<K> key, Expression<V> value);
-
-    /**
-     * return a single result for the given projection or null if no result is found
-     * 
-     * <p>There is some ambiguity for missing results and null valued results, for disambiguation 
-     * use the list or iterate methods instead.</p> 
-     *
-     * <p>for multiple results only the first one is returned</p>
-     *
-     * @param args
      * @return
      */
     @Nullable
-    Tuple singleResult(Expression<?>... args);
+    T firstResult();
 
     /**
-     * return a single result for the given projection or null if no result is found
+     * Get the projection as a unique result or null if no result is found
      *
-     * <p>There is some ambiguity for missing results and null valued results, for disambiguation 
-     * use the list or iterate methods instead.</p>
-     *
-     * <p>for multiple results only the first one is returned</p>
-     *
-     * @param <RT>
-     *            return type
-     * @param projection
-     * @return the result or null for an empty result
-     */
-    @Nullable
-    <RT> RT singleResult(Expression<RT> projection);
-    
-    /**
-     * Apply the given transformer to this Projectable instance and return the results
-     * 
-     * @param <T>
-     * @param transformer
-     * @return
-     */
-    <T> T transform(ResultTransformer<T> transformer);
-
-    /**
-     * return a unique result for the given projection or null if no result is found
-     *
-     * <p>There is some ambiguity for missing results and null valued results, for disambiguation 
-     * use the list or iterate methods instead.</p>
-     *
-     * @param args
      * @throws NonUniqueResultException if there is more than one matching result
      * @return
      */
     @Nullable
-    Tuple uniqueResult(Expression<?>... args);
+    T uniqueResult();
 
     /**
-     * return a unique result for the given projection or null if no result is found
-     * 
-     * <p>There is some ambiguity for missing results and null valued results, for disambiguation 
-     * use the list or iterate methods instead.</p>
+     * Get the projection in {@link QueryResults} form
      *
-     * @param <RT>
-     *            return type
-     * @param projection
-     * @throws NonUniqueResultException if there is more than one matching result
-     * @return the result or null for an empty result
+     * @return
      */
-    @Nullable
-    <RT> RT uniqueResult(Expression<RT> projection);
+    QueryResults<T> listResults();
+
+    /**
+     * Get the count of matched elements
+     *
+     * @return
+     */
+    long count();
 
 }

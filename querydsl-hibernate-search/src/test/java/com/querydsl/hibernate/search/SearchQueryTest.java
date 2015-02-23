@@ -27,7 +27,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import com.querydsl.core.NonUniqueResultException;
-import com.querydsl.core.SearchResults;
+import com.querydsl.core.QueryResults;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
 
@@ -93,7 +93,7 @@ public class SearchQueryTest extends AbstractQueryTest {
 
     @Test
     public void SingleResult() {
-        assertNotNull(query().where(user.middleName.eq("X")).singleResult());
+        assertNotNull(query().where(user.middleName.eq("X")).firstResult());
     }
 
     @Test
@@ -134,7 +134,7 @@ public class SearchQueryTest extends AbstractQueryTest {
     @Test
     public void ListResults() {
         BooleanExpression filter = user.middleName.eq("X");
-        SearchResults<User> users = query().where(filter).orderBy(
+        QueryResults<User> users = query().where(filter).orderBy(
                 user.firstName.asc()).limit(2).listResults();
         List<String> asc = getFirstNames(users.getResults());
         assertEquals(Arrays.asList("Anton", "Barbara"), asc);

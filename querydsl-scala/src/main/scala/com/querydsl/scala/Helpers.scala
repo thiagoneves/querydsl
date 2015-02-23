@@ -14,7 +14,8 @@
 
 package com.querydsl.scala
 
-import com.querydsl.core.{Projectable, SimpleProjectable}
+import com.querydsl.core.Projectable
+import com.querydsl.core.ProjectableQuery
 
 import scala.collection.JavaConversions._
 import com.querydsl._
@@ -31,23 +32,21 @@ object Helpers extends Helpers
 
 trait Helpers extends Projections with GroupBy {
   
-  implicit def toRichSimpleProjectable[T](p: SimpleProjectable[T]) = new RichSimpleProjectable(p) 
+  implicit def toRichSimpleProjectable[T](p: Projectable[T]) = new RichSimpleProjectable(p)
   
-  implicit def toRichProjectable(p: Projectable) = new RichProjectable(p)  
+  implicit def toRichProjectable(p: ProjectableQuery[_,_]) = new RichProjectable(p)
 }
 
 /**
  * RichSimpleProjectable provides Scala extensions for SimpleProjectable
- * 
- * @author tiwe
  *
- * @param <T>
+ * @author tiwe
  */
-class RichSimpleProjectable[T](private val p: SimpleProjectable[T]) {
+class RichSimpleProjectable[T](private val p: Projectable[T]) {
   
   def select: List[T] = p.list.toList
   
-  def single: Option[T] = Option(p.singleResult())
+  def first: Option[T] = Option(p.firstResult())
   
   def unique: Option[T] = Option(p.uniqueResult())
   
@@ -61,107 +60,107 @@ class RichSimpleProjectable[T](private val p: SimpleProjectable[T]) {
  * @author tiwe
  *
  */
-class RichProjectable(private val p: Projectable) {
+class RichProjectable(private val p: ProjectableQuery[_,_]) {
   
-  def select[A](e: Ex[A]): List[A] = p.list(e).toList 
+  def select[A](e: Ex[A]): List[A] = p.select(e).list().toList
   
-  def select[A,B](e1: Ex[A], e2: Ex[B]): List[(A,B)] = p.list((e1,e2)).toList 
+  def select[A,B](e1: Ex[A], e2: Ex[B]): List[(A,B)] = p.select((e1,e2)).list().toList
   
-  def select[A,B,C](e1: Ex[A], e2: Ex[B], e3: Ex[C]): List[(A,B,C)] = p.list((e1,e2,e3)).toList
+  def select[A,B,C](e1: Ex[A], e2: Ex[B], e3: Ex[C]): List[(A,B,C)] = p.select((e1,e2,e3)).list().toList
   
   def select[A,B,C,D](e1: Ex[A], e2: Ex[B], e3: Ex[C], e4: Ex[D]): List[(A,B,C,D)] = {
-    p.list((e1,e2,e3,e4)).toList
+    p.select((e1,e2,e3,e4)).list().toList
   }
   
   def select[A,B,C,D,E](e1: Ex[A], e2: Ex[B], e3: Ex[C], e4: Ex[D], e5: Ex[E]): List[(A,B,C,D,E)] = {
-    p.list((e1,e2,e3,e4,e5)).toList
+    p.select((e1,e2,e3,e4,e5)).list().toList
   }
   
   def select[A,B,C,D,E,F](e1: Ex[A], e2: Ex[B], e3: Ex[C], e4: Ex[D], e5: Ex[E], e6: Ex[F]): List[(A,B,C,D,E,F)] = {
-    p.list((e1,e2,e3,e4,e5,e6)).toList
+    p.select((e1,e2,e3,e4,e5,e6)).list()toList
   }
   
   def select[A,B,C,D,E,F,G](e1: Ex[A], e2: Ex[B], e3: Ex[C], e4: Ex[D], e5: Ex[E], e6: Ex[F], 
       e7: Ex[G]): List[(A,B,C,D,E,F,G)] = {
-    p.list((e1,e2,e3,e4,e5,e6,e7)).toList
+    p.select((e1,e2,e3,e4,e5,e6,e7)).list().toList
   }
   
   def select[A,B,C,D,E,F,G,H](e1: Ex[A], e2: Ex[B], e3: Ex[C], e4: Ex[D], e5: Ex[E], e6: Ex[F], 
       e7: Ex[G], e8: Ex[H]): List[(A,B,C,D,E,F,G,H)] = {
-    p.list((e1,e2,e3,e4,e5,e6,e7,e8)).toList
+    p.select((e1,e2,e3,e4,e5,e6,e7,e8)).list().toList
   }
   
   def select[A,B,C,D,E,F,G,H,I](e1: Ex[A], e2: Ex[B], e3: Ex[C], e4: Ex[D], e5: Ex[E], e6: Ex[F], 
       e7: Ex[G], e8: Ex[H], e9: Ex[I]): List[(A,B,C,D,E,F,G,H,I)] = {
-    p.list((e1,e2,e3,e4,e5,e6,e7,e8,e9)).toList
+    p.select((e1,e2,e3,e4,e5,e6,e7,e8,e9)).list().toList
   }
   
   def select[A,B,C,D,E,F,G,H,I,J](e1: Ex[A], e2: Ex[B], e3: Ex[C], e4: Ex[D], e5: Ex[E], e6: Ex[F], 
       e7: Ex[G], e8: Ex[H], e9: Ex[I], e10: Ex[J]): List[(A,B,C,D,E,F,G,H,I,J)] = {
-    p.list((e1,e2,e3,e4,e5,e6,e7,e8,e9,e10)).toList
+    p.select((e1,e2,e3,e4,e5,e6,e7,e8,e9,e10)).list().toList
   }
   
   def select[A,B,C,D,E,F,G,H,I,J,K](e1: Ex[A], e2: Ex[B], e3: Ex[C], e4: Ex[D], e5: Ex[E], e6: Ex[F], 
       e7: Ex[G], e8: Ex[H], e9: Ex[I], e10: Ex[J], e11: Ex[K]): List[(A,B,C,D,E,F,G,H,I,J,K)] = {
-    p.list((e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11)).toList
+    p.select((e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11)).list().toList
   }
   
   def select[A,B,C,D,E,F,G,H,I,J,K,L](e1: Ex[A], e2: Ex[B], e3: Ex[C], e4: Ex[D], e5: Ex[E], 
       e6: Ex[F], e7: Ex[G], e8: Ex[H], e9: Ex[I], e10: Ex[J], e11: Ex[K], 
       e12: Ex[L]): List[(A,B,C,D,E,F,G,H,I,J,K,L)] = {
-    p.list((e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12)).toList
+    p.select((e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12)).list().toList
   }
   
   def select[A,B,C,D,E,F,G,H,I,J,K,L,M](e1: Ex[A], e2: Ex[B], e3: Ex[C], e4: Ex[D], e5: Ex[E], 
       e6: Ex[F], e7: Ex[G], e8: Ex[H], e9: Ex[I], e10: Ex[J], e11: Ex[K], e12: Ex[L],
       e13: Ex[M]): List[(A,B,C,D,E,F,G,H,I,J,K,L,M)] = {
-    p.list((e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13)).toList
+    p.select((e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13)).list().toList
   }
   
   def select[A,B,C,D,E,F,G,H,I,J,K,L,M,N](e1: Ex[A], e2: Ex[B], e3: Ex[C], e4: Ex[D], 
       e5: Ex[E], e6: Ex[F], e7: Ex[G], e8: Ex[H], e9: Ex[I], e10: Ex[J], e11: Ex[K], e12: Ex[L], 
       e13: Ex[M], e14: Ex[N]): List[(A,B,C,D,E,F,G,H,I,J,K,L,M,N)] = {
-    p.list((e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14)).toList
+    p.select((e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14)).list().toList
   }
   
   def select[A,B,C,D,E,F,G,H,I,J,K,L,M,N,O](e1: Ex[A], e2: Ex[B], e3: Ex[C], e4: Ex[D], 
       e5: Ex[E], e6: Ex[F], e7: Ex[G], e8: Ex[H], e9: Ex[I], e10: Ex[J], e11: Ex[K], e12: Ex[L], 
       e13: Ex[M], e14: Ex[N], e15: Ex[O]): List[(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O)] = {
-    p.list((e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15)).toList
+    p.select((e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15)).list().toList
   }
   
   def select[A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P](e1: Ex[A], e2: Ex[B], e3: Ex[C], e4: Ex[D], 
       e5: Ex[E], e6: Ex[F], e7: Ex[G], e8: Ex[H], e9: Ex[I], e10: Ex[J], e11: Ex[K], e12: Ex[L], 
       e13: Ex[M], e14: Ex[N], e15: Ex[O], e16: Ex[P]): List[(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P)] = {
-    p.list((e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16)).toList
+    p.select((e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16)).list().toList
   }
   
   def select[A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q](e1: Ex[A], e2: Ex[B], e3: Ex[C], e4: Ex[D], 
       e5: Ex[E], e6: Ex[F], e7: Ex[G], e8: Ex[H], e9: Ex[I], e10: Ex[J], e11: Ex[K], e12: Ex[L], 
       e13: Ex[M], e14: Ex[N], e15: Ex[O], e16: Ex[P], 
       e17: Ex[Q]): List[(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q)] = {
-    p.list((e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17)).toList
+    p.select((e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17)).list().toList
   }
   
   def select[A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R](e1: Ex[A], e2: Ex[B], e3: Ex[C], e4: Ex[D], 
       e5: Ex[E], e6: Ex[F], e7: Ex[G], e8: Ex[H], e9: Ex[I], e10: Ex[J], e11: Ex[K], e12: Ex[L], 
       e13: Ex[M], e14: Ex[N], e15: Ex[O], e16: Ex[P], e17: Ex[Q], 
       e18: Ex[R]): List[(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R)] = {
-    p.list((e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18)).toList
+    p.select((e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18)).list().toList
   }
   
   def select[A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S](e1: Ex[A], e2: Ex[B], e3: Ex[C], e4: Ex[D], 
       e5: Ex[E], e6: Ex[F], e7: Ex[G], e8: Ex[H], e9: Ex[I], e10: Ex[J], e11: Ex[K], e12: Ex[L], 
       e13: Ex[M], e14: Ex[N], e15: Ex[O], e16: Ex[P], e17: Ex[Q], e18: Ex[R], 
       e19: Ex[S]): List[(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S)] = {
-    p.list((e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19)).toList
+    p.select((e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19)).list().toList
   }
   
   def select[A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T](e1: Ex[A], e2: Ex[B], e3: Ex[C], e4: Ex[D], 
       e5: Ex[E], e6: Ex[F], e7: Ex[G], e8: Ex[H], e9: Ex[I], e10: Ex[J], e11: Ex[K], e12: Ex[L], 
       e13: Ex[M], e14: Ex[N], e15: Ex[O], e16: Ex[P], e17: Ex[Q], e18: Ex[R], e19: Ex[S], 
       e20: Ex[T]): List[(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T)] = {
-    p.list((e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20)).toList
+    p.select((e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20)).list().toList
   }
   
   // TODO : generalize this
@@ -169,11 +168,11 @@ class RichProjectable(private val p: Projectable) {
     p.transform(groupBy(key).as((parent, set(child)))).values.toList    
   }  
   
-  def single[T](expr: Ex[T]): Option[T] = Option(p.singleResult(expr))
+  def first[T](expr: Ex[T]): Option[T] = Option(p.select(expr).firstResult())
   
   // TODO : single variants for multiple arguments
   
-  def unique[T](expr: Ex[T]): Option[T] = Option(p.uniqueResult(expr))
+  def unique[T](expr: Ex[T]): Option[T] = Option(p.select(expr).uniqueResult)
   
   // TODO : unique variants for multiple arguments
   

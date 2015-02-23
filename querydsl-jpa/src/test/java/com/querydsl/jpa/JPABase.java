@@ -117,7 +117,7 @@ public class JPABase extends AbstractJPATest implements JPATest {
         QCat child = new QCat("kitten");
 
         delete(child)
-            .where(child.id.eq(-100), new JPASubQuery()
+            .where(child.id.eq(-100), new JPAQuery()
                .from(parent)
                .where(parent.id.eq(-200),
                       child.in(parent.kittens)).exists())
@@ -130,7 +130,7 @@ public class JPABase extends AbstractJPATest implements JPATest {
         QChild child = QChild.child;
         QParent parent = QParent.parent;
 
-        JPASubQuery subQuery = new JPASubQuery()
+        JPAQuery subQuery = new JPAQuery()
             .from(parent)
             .where(parent.id.eq(2),
                    child.parent.eq(parent));
@@ -230,7 +230,7 @@ public class JPABase extends AbstractJPATest implements JPATest {
     public void Subquery_UniqueResult() {
         QCat cat2 = new QCat("cat2");
 
-        BooleanExpression exists = new JPASubQuery().from(cat2).where(cat2.eyecolor.isNotNull()).exists();
+        BooleanExpression exists = new JPAQuery().from(cat2).where(cat2.eyecolor.isNotNull()).exists();
         assertNotNull(query().from(cat)
                 .where(cat.breed.eq(0).not())
                 .singleResult(new QCatSummary(cat.breed.count(), exists)));

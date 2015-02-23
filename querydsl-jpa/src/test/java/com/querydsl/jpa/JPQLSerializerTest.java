@@ -147,7 +147,7 @@ public class JPQLSerializerTest {
         md.addJoin(JoinType.DEFAULT, child);
         md.addWhere(
             child.id.eq(1)
-            .and(new JPASubQuery()
+            .and(new JPAQuery()
                 .from(parent)
                 .where(parent.id.eq(2), child.in(parent.kittens)).exists()));
         serializer.serializeForDelete(md);

@@ -39,7 +39,7 @@ import com.querydsl.core.types.dsl.CollectionPathBase;
  * @param <K>
  * @param <Q>
  */
-public abstract class AbstractMongodbQuery<K, Q extends AbstractMongodbQuery<K, Q>> implements SimpleQuery<Q>, SimpleProjectable<K> {
+public abstract class AbstractMongodbQuery<K, Q extends AbstractMongodbQuery<K, Q>> implements SimpleQuery<Q>, Projectable<K> {
 
     @SuppressWarnings("serial")
     private static class NoResults extends RuntimeException {}
@@ -301,13 +301,13 @@ public abstract class AbstractMongodbQuery<K, Q extends AbstractMongodbQuery<K, 
         return null;
     }
 
-    public K singleResult(Path<?>...paths) {
+    public K firstResult(Path<?>...paths) {
         queryMixin.setProjection(paths);
-        return singleResult();
+        return firstResult();
     }
 
     @Override
-    public K singleResult() {
+    public K firstResult() {
         try {
             DBCursor c = createCursor().limit(1);
             if (c.hasNext()) {
@@ -347,22 +347,22 @@ public abstract class AbstractMongodbQuery<K, Q extends AbstractMongodbQuery<K, 
         }
     }
 
-    public SearchResults<K> listResults(Path<?>... paths) {
+    public QueryResults<K> listResults(Path<?>... paths) {
         queryMixin.setProjection(paths);
         return listResults();
     }
 
     @Override
-    public SearchResults<K> listResults() {
+    public QueryResults<K> listResults() {
         try {
             long total = count();
             if (total > 0l) {
-                return new SearchResults<K>(list(), queryMixin.getMetadata().getModifiers(), total);
+                return new QueryResults<K>(list(), queryMixin.getMetadata().getModifiers(), total);
             } else {
-                return SearchResults.emptyResults();
+                return QueryResults.emptyResults();
             }
         } catch (NoResults ex) {
-            return SearchResults.emptyResults();
+            return QueryResults.emptyResults();
         }
     }
 

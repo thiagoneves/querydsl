@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 import com.mysema.commons.lang.CloseableIterator;
 import com.querydsl.core.DefaultQueryMetadata;
 import com.querydsl.core.QueryMetadata;
-import com.querydsl.core.SearchResults;
+import com.querydsl.core.QueryResults;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Expression;
 
@@ -35,7 +35,7 @@ import antlr.RecognitionException;
 import antlr.TokenStreamException;
 import antlr.collections.AST;
 
-class QueryHelper extends JPAQueryBase<QueryHelper> {
+class QueryHelper<T> extends JPAQueryBase<T, QueryHelper<T>> {
 
     private static final Logger logger = LoggerFactory.getLogger(QueryHelper.class);
 
@@ -56,23 +56,14 @@ class QueryHelper extends JPAQueryBase<QueryHelper> {
         return 0;
     }
 
-    @Override
-    public CloseableIterator<Tuple> iterate(Expression<?>... args) {
+
+    @Nullable
+    public CloseableIterator<T> iterate() {
         throw new UnsupportedOperationException();
     }
 
     @Nullable
-    public <RT> CloseableIterator<RT> iterate(Expression<RT> projection) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Nullable
-    public SearchResults<Tuple> listResults(Expression<?>... args) {
-        throw new UnsupportedOperationException();
-    }
-    
-    @Nullable
-    public <RT> SearchResults<RT> listResults(Expression<RT> expr) {
+    public QueryResults<T> listResults() {
         throw new UnsupportedOperationException();
     }
 
@@ -93,19 +84,27 @@ class QueryHelper extends JPAQueryBase<QueryHelper> {
         }
     }
 
-    public QueryHelper select(Expression<?>... exprs) {
-        queryMixin.setProjection(exprs);
-        return this;
-    }
-
     @Override
-    public <RT> RT uniqueResult(Expression<RT> projection) {
+    public T uniqueResult() {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public QueryHelper clone() {
-        return new QueryHelper(getMetadata().clone(), getTemplates());
+    public QueryHelper<T> clone() {
+        return new QueryHelper<T>(getMetadata().clone(), getTemplates());
+    }
+
+
+    @Override
+    public <U> QueryHelper<U> select(Expression<U> expr) {
+        queryMixin.setProjection(expr);
+        return (QueryHelper<U>) this;
+    }
+
+    @Override
+    public QueryHelper<Tuple> select(Expression<?>... exprs) {
+        queryMixin.setProjection(exprs);
+        return (QueryHelper<Tuple>) this;
     }
     
 }

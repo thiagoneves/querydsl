@@ -50,7 +50,6 @@ public class MergeBase extends AbstractBaseTest{
         reset();
     }
 
-
     @Test
     @ExcludeIn({H2, CUBRID, SQLSERVER})
     public void Merge_With_Keys() throws SQLException{
@@ -70,7 +69,7 @@ public class MergeBase extends AbstractBaseTest{
         // keys + subquery
         QSurvey survey2 = new QSurvey("survey2");
         assertEquals(2, merge(survey).keys(survey.id).select(
-                sq().from(survey2).list(survey2.id.add(1), survey2.name, survey2.name2)).execute());
+                query().from(survey2).select(survey2.id.add(1), survey2.name, survey2.name2)).execute());
     }
 
     @Test
@@ -175,13 +174,13 @@ public class MergeBase extends AbstractBaseTest{
         SQLMergeClause merge = merge(survey)
             .keys(survey.id)
             .columns(survey.id, survey.name)
-            .select(sq().from(survey2).list(survey2.id.add(20), survey2.name))
+            .select(query().from(survey2).select(survey2.id.add(20), survey2.name))
             .addBatch();
 
         merge(survey)
             .keys(survey.id)
             .columns(survey.id, survey.name)
-            .select(sq().from(survey2).list(survey2.id.add(40), survey2.name))
+            .select(query().from(survey2).select(survey2.id.add(40), survey2.name))
             .addBatch();
 
         merge.execute();

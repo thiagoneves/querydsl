@@ -153,7 +153,7 @@ public class UpdateBase extends AbstractBaseTest {
         QEmployee employee = new QEmployee("e");
         SQLUpdateClause update = update(survey1);
         update.set(survey1.name, "AA");
-        update.where(new SQLSubQuery().from(employee).where(survey1.id.eq(employee.id)).exists());
+        update.where(exists(new SQLQuery<Void>().from(employee).where(survey1.id.eq(employee.id))));
         update.execute();
     }
 
@@ -163,12 +163,12 @@ public class UpdateBase extends AbstractBaseTest {
         QEmployee employee = new QEmployee("e");
 
         Param<Integer> param = new Param<Integer>(Integer.class, "param");
-        SQLSubQuery sq = sq().from(employee).where(employee.id.eq(param));
+        SQLQuery<Void> sq = query().from(employee).where(employee.id.eq(param));
         sq.set(param, -12478923);
 
         SQLUpdateClause update = update(survey1);
         update.set(survey1.name, "AA");
-        update.where(sq.exists());
+        update.where(exists(sq));
         update.execute();
     }
 
@@ -178,7 +178,7 @@ public class UpdateBase extends AbstractBaseTest {
         QEmployee employee = new QEmployee("e");
         SQLUpdateClause update = update(survey1);
         update.set(survey1.name, "AA");
-        update.where(new SQLSubQuery().from(employee).where(survey1.name.eq(employee.lastname)).exists());
+        update.where(exists(new SQLQuery<Void>().from(employee).where(survey1.name.eq(employee.lastname))));
         update.execute();
     }
 
@@ -188,7 +188,7 @@ public class UpdateBase extends AbstractBaseTest {
         QEmployee employee = new QEmployee("e");
         SQLUpdateClause update = update(survey1);
         update.set(survey1.name, "AA");
-        update.where(sq().from(employee).where(survey1.id.eq(employee.id)).notExists());
+        update.where(notExists(query().from(employee).where(survey1.id.eq(employee.id))));
         update.execute();
     }
 

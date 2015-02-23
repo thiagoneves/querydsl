@@ -26,9 +26,9 @@ package com.querydsl.core;
 public interface ResultTransformer<T> {
 
     /**
-     * @param projectable
+     * @param query
      * @return
      */
-    T transform(Projectable projectable);
+    T transform(ProjectableQuery query);
     
 }

@@ -13,28 +13,30 @@
  */
 package com.querydsl.jdo;
 
-import javax.jdo.PersistenceManager;
-import javax.jdo.Transaction;
+import static org.junit.Assert.*;
+
 import java.sql.SQLException;
 import java.util.List;
 
+import javax.jdo.PersistenceManager;
+import javax.jdo.Transaction;
+
+import org.junit.BeforeClass;
+import org.junit.Ignore;
+import org.junit.Test;
+
 import com.querydsl.core.NonUniqueResultException;
-import com.querydsl.core.SearchResults;
+import com.querydsl.core.QueryResults;
 import com.querydsl.core.Tuple;
-import com.querydsl.jdo.sql.JDOSQLQuery;
-import com.querydsl.jdo.test.domain.Product;
-import com.querydsl.jdo.test.domain.sql.SProduct;
-import com.querydsl.sql.HSQLDBTemplates;
-import com.querydsl.sql.SQLSubQuery;
-import com.querydsl.sql.SQLTemplates;
 import com.querydsl.core.types.ConstructorExpression;
 import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.SubQueryExpression;
 import com.querydsl.core.types.dsl.BooleanExpression;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import com.querydsl.jdo.sql.JDOSQLQuery;
+import com.querydsl.jdo.test.domain.Product;
+import com.querydsl.jdo.test.domain.sql.SProduct;
+import com.querydsl.sql.HSQLDBTemplates;
+import com.querydsl.sql.SQLTemplates;
 
 public class JDOSQLQueryTest extends AbstractJDOTest{
     
@@ -42,14 +44,9 @@ public class JDOSQLQueryTest extends AbstractJDOTest{
     
     private final SProduct product = SProduct.product;
     
-    private JDOSQLQuery sql() {
-        return new JDOSQLQuery(pm, sqlTemplates);
+    protected JDOSQLQuery<Void> sql() {
+        return new JDOSQLQuery<Void>(pm, sqlTemplates);
     }
-    
-    protected SQLSubQuery sq() {
-        return new SQLSubQuery();
-    }
-    
 
     @Test
     public void Count() {        
@@ -58,17 +55,17 @@ public class JDOSQLQueryTest extends AbstractJDOTest{
     
     @Test(expected=NonUniqueResultException.class)
     public void UniqueResult() {
-        sql().from(product).uniqueResult(product.name);
+        sql().from(product).select(product.name).uniqueResult();
     }
     
     @Test
     public void SingleResult() {
-        sql().from(product).singleResult(product.name);
+        sql().from(product).select(product.name).firstResult();
     }
     
     @Test
     public void SingleResult_With_Array() {
-        sql().from(product).singleResult(new Expression[]{product.name});
+        sql().from(product).select(new Expression[]{product.name}).firstResult();
     }
     
     @Test    
@@ -99,26 +96,26 @@ public class JDOSQLQueryTest extends AbstractJDOTest{
         assertEquals(10l, sql().from(product).where(filter).distinct().count());
 
         // list
-        assertEquals(10, sql().from(product).where(filter).list(product.name).size());
+        assertEquals(10, sql().from(product).where(filter).select(product.name).list().size());
 
         // list with limit
-        assertEquals(3, sql().from(product).limit(3).list(product.name).size());
+        assertEquals(3, sql().from(product).limit(3).select(product.name).list().size());
 
         // list with offset
 //        assertEquals(7, sql().from(product).offset(3).list(product.name).size());
 
         // list with limit and offset
-        assertEquals(3, sql().from(product).offset(3).limit(3).list(product.name).size());
+        assertEquals(3, sql().from(product).offset(3).limit(3).select(product.name).list().size());
 
         // list multiple
-        for (Tuple row : sql().from(product).list(product.productId, product.name, product.amount)) {
+        for (Tuple row : sql().from(product).select(product.productId, product.name, product.amount).list()) {
             assertNotNull(row.get(0, Object.class));
             assertNotNull(row.get(1, Object.class));
             assertNotNull(row.get(2, Object.class));
         }
 
         // listResults
-        SearchResults<String> results = sql().from(product).limit(3).listResults(product.name);
+        QueryResults<String> results = sql().from(product).limit(3).select(product.name).listResults();
         assertEquals(3, results.getResults().size());
         assertEquals(30l, results.getTotal());
 
@@ -128,8 +125,8 @@ public class JDOSQLQueryTest extends AbstractJDOTest{
     @Test
     @SuppressWarnings("unchecked")
     public void Union() throws SQLException {
-        SubQueryExpression<Integer> sq1 = sq().from(product).unique(product.amount.max());
-        SubQueryExpression<Integer> sq2 = sq().from(product).unique(product.amount.min());
+        SubQueryExpression<Integer> sq1 = sql().from(product).select(product.amount.max());
+        SubQueryExpression<Integer> sq2 = sql().from(product).select(product.amount.min());
         List<Integer> list = sql().union(sq1, sq2).list();
         assertFalse(list.isEmpty());
     }
@@ -138,8 +135,8 @@ public class JDOSQLQueryTest extends AbstractJDOTest{
     @Test
     @SuppressWarnings("unchecked")
     public void Union_All() {
-        SubQueryExpression<Integer> sq1 = sq().from(product).unique(product.amount.max());
-        SubQueryExpression<Integer> sq2 = sq().from(product).unique(product.amount.min());
+        SubQueryExpression<Integer> sq1 = sql().from(product).select(product.amount.max());
+        SubQueryExpression<Integer> sq2 = sql().from(product).select(product.amount.min());
         List<Integer> list = sql().unionAll(sq1, sq2).list();
         assertFalse(list.isEmpty());
     }
@@ -148,8 +145,8 @@ public class JDOSQLQueryTest extends AbstractJDOTest{
     public void EntityProjections() {
         List<Product> products = sql()
             .from(product)
-            .list(ConstructorExpression.create(Product.class,
-                    product.name, product.description, product.price, product.amount));
+            .select(ConstructorExpression.create(Product.class,
+                    product.name, product.description, product.price, product.amount)).list();
         assertEquals(30, products.size());
         for (Product p : products) {
             assertNotNull(p.getName());

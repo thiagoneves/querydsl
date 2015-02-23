@@ -51,7 +51,7 @@ import com.querydsl.sql.SQLSerializer;
  *
  * @param <Q>
  */
-public abstract class AbstractJPASQLQuery<Q extends AbstractJPASQLQuery<Q>> extends AbstractSQLQuery<Q> {
+public abstract class AbstractJPASQLQuery<T, Q extends AbstractJPASQLQuery<T, Q>> extends AbstractSQLQuery<T, Q> {
 
     private static final Logger logger = LoggerFactory.getLogger(AbstractJPASQLQuery.class);
 
@@ -238,19 +238,19 @@ public abstract class AbstractJPASQLQuery<Q extends AbstractJPASQLQuery<Q>> exte
 
     @SuppressWarnings("unchecked")
     @Override
-    public <RT> List<RT> list(Expression<RT> projection) {
+    public List<T> list() {
         try {
-            Query query = createQuery(projection);
-            return (List<RT>) getResultList(query);
+            Query query = createQuery();
+            return (List<T>) getResultList(query);
         } finally {
             reset();
         }
     }
 
     @Override
-    public <RT> CloseableIterator<RT> iterate(Expression<RT> expr) {
+    public CloseableIterator<T> iterate() {
         try {
-            Query query = createQuery(expr);
+            Query query = createQuery();
             return queryHandler.iterate(query, null);
         } finally {
             reset();
@@ -258,27 +258,25 @@ public abstract class AbstractJPASQLQuery<Q extends AbstractJPASQLQuery<Q>> exte
     }
 
     @Override
-    public <RT> SearchResults<RT> listResults(Expression<RT> projection) {
+    public QueryResults<T> listResults() {
         // TODO : handle entity projections as well
         try {
-            queryMixin.setProjection(projection);
             Query query = createQuery(true);
             long total = ((Number)query.getSingleResult()).longValue();
             if (total > 0) {
                 QueryModifiers modifiers = queryMixin.getMetadata().getModifiers();
                 query = createQuery(false);
                 @SuppressWarnings("unchecked")
-                List<RT> list = (List<RT>) getResultList(query);
-                return new SearchResults<RT>(list, modifiers, total);
+                List<T> list = (List<T>) getResultList(query);
+                return new QueryResults<T>(list, modifiers, total);
             } else {
-                return SearchResults.emptyResults();
+                return QueryResults.emptyResults();
             }
         } finally {
             reset();
         }
 
     }
-
 
     protected void logQuery(String queryString, Map<Object, String> parameters) {
         String normalizedQuery = queryString.replace('\n', ' ');
@@ -301,9 +299,9 @@ public abstract class AbstractJPASQLQuery<Q extends AbstractJPASQLQuery<Q>> exte
 
     @Override
     @SuppressWarnings("unchecked")
-    public <RT> RT uniqueResult(Expression<RT> expr) {
-        Query query = createQuery(expr);
-        return (RT)uniqueResult(query);
+    public T uniqueResult() {
+        Query query = createQuery();
+        return (T)uniqueResult(query);
     }
 
     @Nullable

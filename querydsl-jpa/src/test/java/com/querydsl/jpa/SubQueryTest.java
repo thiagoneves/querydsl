@@ -18,9 +18,10 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
 import com.querydsl.core.domain.QCat;
+import com.querydsl.core.types.SubQueryExpression;
 import com.querydsl.jpa.domain.QEmployee;
 import com.querydsl.jpa.domain.QUser;
-import com.querydsl.core.types.dsl.NumberSubQuery;
+import com.querydsl.jpa.impl.JPAQuery;
 
 public class SubQueryTest extends AbstractQueryTest{
 
@@ -31,14 +32,14 @@ public class SubQueryTest extends AbstractQueryTest{
 
     @Test
     public void Single_Source() {
-        JPASubQuery query = sub();
+        JPAQuery<Void> query = sub();
         query.from(cat);
         assertEquals("select cat\nfrom Cat cat", query.toString());
     }
     
     @Test
     public void Multiple_Sources() {
-        JPASubQuery query = sub();
+        JPAQuery<Void> query = sub();
         query.from(cat);
         query.from(fatcat);
         assertEquals("select cat\nfrom Cat cat, Cat fatcat", 
@@ -47,7 +48,7 @@ public class SubQueryTest extends AbstractQueryTest{
     
     @Test
     public void In() {
-        cat.in(sub().from(cat).list(cat));
+        cat.in(sub().from(cat).select(cat).list());
     }
         
     @Test
@@ -79,19 +80,19 @@ public class SubQueryTest extends AbstractQueryTest{
     @Test
     public void UniqueProjection() {
         assertToString("(select cat from Cat cat)", 
-                sub().from(cat).unique(cat));
+                sub().from(cat).select(cat));
     }
 
     @Test
     public void ListProjection() {
         assertToString("(select cat from Cat cat)", 
-                sub().from(cat).list(cat));
+                sub().from(cat).select(cat));
     }
     
     @Test
     public void ListContains() {
         assertToString("cat1 in (select cat from Cat cat)", 
-                sub().from(cat).list(cat).contains(cat1));
+                sub().from(cat).select(cat).contains(cat1));
     }
     
     @Test
@@ -109,7 +110,7 @@ public class SubQueryTest extends AbstractQueryTest{
     @Test
     public void Exists_Via_Unique() {
         assertToString("exists (select 1 from Cat cat where cat.weight < ?1)", 
-                sub().from(cat).where(cat.weight.lt(1)).unique(cat).exists());
+                sub().from(cat).where(cat.weight.lt(1)).select(cat).exists());
     }
     
     @Test
@@ -127,7 +128,7 @@ public class SubQueryTest extends AbstractQueryTest{
     @Test
     public void NotExists_Via_Unique() {
         assertToString("not exists (select 1 from Cat cat where cat.weight < ?1)", 
-                sub().from(cat).where(cat.weight.lt(1)).unique(cat).notExists());   
+                sub().from(cat).where(cat.weight.lt(1)).select(cat).notExists());
     }
 
     @Test
@@ -139,13 +140,13 @@ public class SubQueryTest extends AbstractQueryTest{
     @Test
     public void Count_Via_List() {
         assertToString("(select count(cat) from Cat cat)",                        
-                sub().from(cat).list(cat).count());
+                sub().from(cat).select(cat).count());
     }
     
     @Test
     public void Count_Name() {
         assertToString("(select count(cat.name) from Cat cat)",                   
-                sub().from(cat).list(cat.name).count());
+                sub().from(cat).select(cat.name).count());
     }
 
     @Test
@@ -159,7 +160,7 @@ public class SubQueryTest extends AbstractQueryTest{
     public void Count_Multiple_Sources_Via_List() {
         QCat other = new QCat("other");
         assertToString("(select count(cat, other) from Cat cat, Cat other)",      
-                sub().from(cat, other).list(cat, other).count());
+                sub().from(cat, other).select(cat, other).count());
     }
 
     @Test
@@ -188,8 +189,8 @@ public class SubQueryTest extends AbstractQueryTest{
 
     @Test
     public void OrderBy() {
-        JPQLQuery query = query().from(cat1).where(cat1.alive);
-        NumberSubQuery<Double> subquery = sub().from(cat).where(cat.mate.id.eq(cat1.id)).unique(cat.floatProperty.avg());
+        JPQLQuery<Void> query = query().from(cat1).where(cat1.alive);
+        SubQueryExpression<Double> subquery = sub().from(cat).where(cat.mate.id.eq(cat1.id)).select(cat.floatProperty.avg());
         query.orderBy(subquery.subtract(-1.0f).asc());
 
         assertEquals("select cat1 from Cat cat1 where cat1.alive order by (select avg(cat.floatProperty) from Cat cat where cat.mate.id = cat1.id) - ?1 asc",

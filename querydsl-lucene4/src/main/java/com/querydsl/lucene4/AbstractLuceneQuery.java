@@ -24,27 +24,15 @@ import javax.annotation.Nullable;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.queries.ChainedFilter;
 import org.apache.lucene.sandbox.queries.DuplicateFilter;
-import org.apache.lucene.search.Filter;
-import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.search.MatchAllDocsQuery;
+import org.apache.lucene.search.*;
 import org.apache.lucene.search.Query;
-import org.apache.lucene.search.QueryWrapperFilter;
-import org.apache.lucene.search.ScoreDoc;
-import org.apache.lucene.search.Sort;
 
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import com.mysema.commons.lang.CloseableIterator;
 import com.mysema.commons.lang.EmptyCloseableIterator;
 import com.mysema.commons.lang.IteratorAdapter;
-import com.querydsl.core.DefaultQueryMetadata;
-import com.querydsl.core.NonUniqueResultException;
-import com.querydsl.core.QueryException;
-import com.querydsl.core.QueryMetadata;
-import com.querydsl.core.QueryModifiers;
-import com.querydsl.core.SearchResults;
-import com.querydsl.core.SimpleProjectable;
-import com.querydsl.core.SimpleQuery;
+import com.querydsl.core.*;
 import com.querydsl.core.support.QueryMixin;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.ParamExpression;
@@ -59,8 +47,7 @@ import com.querydsl.core.types.Predicate;
  * @param <T> projection type
  * @param <Q> concrete subtype of querydsl
  */
-public abstract class AbstractLuceneQuery<T,Q extends AbstractLuceneQuery<T,Q>> implements SimpleQuery<Q>,
-SimpleProjectable<T> {
+public abstract class AbstractLuceneQuery<T,Q extends AbstractLuceneQuery<T,Q>> implements SimpleQuery<Q>, Projectable<T> {
 
     private final QueryMixin<Q> queryMixin;
 
@@ -271,13 +258,13 @@ SimpleProjectable<T> {
     }
 
     @Override
-    public SearchResults<T> listResults() {
+    public QueryResults<T> listResults() {
         List<T> documents = innerList();
         /*
          * TODO Get rid of count(). It could be implemented by iterating the
          * list results in list* from n to m.
          */
-        return new SearchResults<T>(documents, queryMixin.getMetadata().getModifiers(), innerCount());
+        return new QueryResults<T>(documents, queryMixin.getMetadata().getModifiers(), innerCount());
     }
 
     @Override
@@ -347,7 +334,7 @@ SimpleProjectable<T> {
     }
 
     @Override
-    public T singleResult() {
+    public T firstResult() {
         return oneResult(false);
     }
 

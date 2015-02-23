@@ -1,78 +1,69 @@
-/*
- * Copyright 2011, Mysema Ltd
- * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * http://www.apache.org/licenses/LICENSE-2.0
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package com.querydsl.core.support;
 
+import java.util.List;
+
+import javax.annotation.Nullable;
+
 import com.mysema.commons.lang.CloseableIterator;
-import com.mysema.commons.lang.EmptyCloseableIterator;
-import com.querydsl.core.SearchResults;
-import com.querydsl.core.Tuple;
-import com.querydsl.core.types.Expression;
+import com.mysema.commons.lang.IteratorAdapter;
+import com.querydsl.core.NonUniqueResultException;
+import com.querydsl.core.Projectable;
+import com.querydsl.core.QueryModifiers;
+import com.querydsl.core.QueryResults;
 
-public class DummyProjectable extends ProjectableQuery<DummyProjectable>{
+public class DummyProjectable<T> implements Projectable<T> {
 
-    public DummyProjectable(QueryMixin<DummyProjectable> queryMixin) {
-        super(queryMixin);
-    }
+    private final List<T> results;
 
-    public DummyProjectable() {
-        super(new QueryMixin<DummyProjectable>());
-    }
-
-    @Override
-    public long count() {
-        return 0;
-    }
-
-    @Override
-    public CloseableIterator<Tuple> iterate(Expression<?>... args) {
-        return new EmptyCloseableIterator<Tuple>();
-    }
-
-    @Override
-    public <RT> CloseableIterator<RT> iterate(Expression<RT> projection) {
-        return new EmptyCloseableIterator<RT>();
-    }
-
-    @Override
-    public SearchResults<Tuple> listResults(Expression<?>... args) {
-        return SearchResults.emptyResults();
-    }
-    
-    @Override
-    public <RT> SearchResults<RT> listResults(Expression<RT> projection) {
-        return SearchResults.emptyResults();
+    public DummyProjectable(List<T> results) {
+        this.results = results;
     }
 
     @Override
     public boolean exists() {
-        return false;
+        return !results.isEmpty();
     }
 
     @Override
-    public Tuple uniqueResult(Expression<?>... args) {
-        if (queryMixin.getMetadata().getModifiers().getLimit() == null) {
-            limit(2);
-        }
-        return null;
+    public boolean notExists() {
+        return results.isEmpty();
     }
 
     @Override
-    public <RT> RT uniqueResult(Expression<RT> projection) {
-        if (queryMixin.getMetadata().getModifiers().getLimit() == null) {
-            limit(2);
-        }
-        return null;
+    public CloseableIterator<T> iterate() {
+        return new IteratorAdapter<T>(results.iterator());
     }
 
+    @Override
+    public List<T> list() {
+        return results;
+    }
+
+    @Nullable
+    @Override
+    public T firstResult() {
+        return results.isEmpty() ? null : results.get(0);
+    }
+
+    @Nullable
+    @Override
+    public T uniqueResult() {
+        if (results.size() > 1) {
+            throw new NonUniqueResultException();
+        } else if (results.isEmpty()) {
+            return null;
+        } else {
+            return results.get(0);
+        }
+    }
+
+    @Override
+    public QueryResults<T> listResults() {
+        return new QueryResults<T>(results, QueryModifiers.EMPTY, results.size());
+    }
+
+    @Override
+    public long count() {
+        return results.size();
+    }
 }

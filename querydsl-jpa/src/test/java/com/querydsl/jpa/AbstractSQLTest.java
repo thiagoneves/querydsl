@@ -10,7 +10,7 @@ import java.util.UUID;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import com.querydsl.core.SearchResults;
+import com.querydsl.core.QueryResults;
 import com.querydsl.core.Target;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.testutil.ExcludeIn;
@@ -25,13 +25,14 @@ import com.querydsl.jpa.domain.Color;
 import com.querydsl.jpa.domain.QCat;
 import com.querydsl.jpa.domain.QCompany;
 import com.querydsl.jpa.domain.sql.SAnimal;
+import com.querydsl.sql.SQLQuery;
 import com.querydsl.sql.SQLSubQuery;
 
 public abstract class AbstractSQLTest {
 
     protected static final SAnimal cat = new SAnimal("cat");
 
-    protected abstract AbstractSQLQuery<?> query();
+    protected abstract AbstractSQLQuery<?,?> query();
 
     public static class CatDTO {
 
@@ -43,8 +44,8 @@ public abstract class AbstractSQLTest {
 
     }
 
-    protected SQLSubQuery sq() {
-        return new SQLSubQuery();
+    protected SQLQuery<Void> sq() {
+        return new SQLQuery<Void>();
     }
 
     @Test
@@ -206,7 +207,7 @@ public abstract class AbstractSQLTest {
 
     @Test
     public void List_Results() {
-        SearchResults<String> results = query().from(cat).limit(3).orderBy(cat.name.asc())
+        QueryResults<String> results = query().from(cat).limit(3).orderBy(cat.name.asc())
                 .listResults(cat.name);
         assertEquals(Arrays.asList("Beck","Bobby","Harold"), results.getResults());
         assertEquals(6l, results.getTotal());

@@ -16,16 +16,15 @@ package com.querydsl.core;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 
-import com.querydsl.core.support.QueryBase;
 import com.querydsl.core.types.Expression;
 
-public final class QueryMutability<T extends QueryBase<T> & Projectable> {
+public final class QueryMutability<Q extends ProjectableQuery<?,?>> {
 
-    private final T query;
+    private final Q query;
 
     private final QueryMetadata metadata;
 
-    public QueryMutability(T query) throws SecurityException,
+    public QueryMutability(Q query) throws SecurityException,
             NoSuchMethodException, IllegalArgumentException,
             IllegalAccessException, InvocationTargetException {
         this.query = query;
@@ -34,44 +33,36 @@ public final class QueryMutability<T extends QueryBase<T> & Projectable> {
 
     public void test(Expression<?> p1, Expression<?> p2) throws IOException {
         System.err.println("count");
-        query.count();
+        query.select(p1).count();
 
         System.err.println("countDistinct");
-        query.distinct().count();
+        query.select(p1).distinct().count();
 
         System.err.println("iterate");
-        query.iterate(p1);
-
-        query.iterate(p1, p2);
+        query.select(p1).iterate();
+        query.select(p1, p2).iterate();
 
         System.err.println("iterateDistinct");
-        query.distinct().iterate(p1);
-
-        query.distinct().iterate(p1, p2);
+        query.select(p1).distinct().iterate();
+        query.select(p1, p2).distinct().iterate();
 
         System.err.println("list");
-        query.list(p1);
-
-        query.list(p1, p2);
+        query.select(p1).list();
+        query.select(p1, p2).list();
 
         System.err.println("distinct list");
-        query.distinct().list(p1);
-
-        query.distinct().list(p1, p2);
+        query.select(p1).distinct().list();
+        query.select(p2).distinct().list();
 
         System.err.println("listResults");
-        query.listResults(p1);
+        query.select(p1).listResults();
 
         System.err.println("distinct listResults");
-        query.distinct().listResults(p1);
-
-        System.err.println("map");
-        query.map(p1, p2);
+        query.select(p1).distinct().listResults();
 
         System.err.println("uniqueResult");
-        query.uniqueResult(p1);
-
-        query.uniqueResult(p1, p2);
+        query.select(p1).uniqueResult();
+        query.select(p1,p2).uniqueResult();
     }
 
 }
