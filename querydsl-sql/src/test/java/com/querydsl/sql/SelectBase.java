@@ -13,8 +13,8 @@
  */
 package com.querydsl.sql;
 
-import static com.querydsl.sql.Constants.*;
 import static com.querydsl.core.Target.*;
+import static com.querydsl.sql.Constants.*;
 import static org.junit.Assert.*;
 
 import java.io.*;
@@ -40,8 +40,9 @@ import com.mysema.commons.lang.Pair;
 import com.querydsl.core.*;
 import com.querydsl.core.group.Group;
 import com.querydsl.core.group.GroupBy;
-import com.querydsl.sql.domain.*;
 import com.querydsl.core.support.Expressions;
+import com.querydsl.core.testutil.ExcludeIn;
+import com.querydsl.core.testutil.IncludeIn;
 import com.querydsl.core.types.*;
 import com.querydsl.core.types.expr.*;
 import com.querydsl.core.types.path.NumberPath;
@@ -49,8 +50,7 @@ import com.querydsl.core.types.path.PathBuilder;
 import com.querydsl.core.types.path.StringPath;
 import com.querydsl.core.types.query.NumberSubQuery;
 import com.querydsl.core.types.template.NumberTemplate;
-import com.querydsl.core.testutil.ExcludeIn;
-import com.querydsl.core.testutil.IncludeIn;
+import com.querydsl.sql.domain.*;
 
 public class SelectBase extends AbstractBaseTest {
 
@@ -385,6 +385,18 @@ public class SelectBase extends AbstractBaseTest {
         data.add(new LocalTime(23, 59, 59));
         data.add(new LocalTime(ts));
         data.add(new LocalTime(tsTime));
+
+        java.time.Instant javaInstant = java.time.Instant.now().truncatedTo(java.time.temporal.ChronoUnit.SECONDS);
+        java.time.LocalDateTime javaDateTime = java.time.LocalDateTime.ofInstant(javaInstant, java.time.ZoneId.of("Z"));
+        java.time.LocalDate javaDate = javaDateTime.toLocalDate();
+        java.time.LocalTime javaTime = javaDateTime.toLocalTime();
+        data.add(javaInstant);                                      //java.time.Instant
+        data.add(javaDateTime);                                     //java.time.LocalDateTime
+        data.add(javaDate);                                         //java.time.LocalDate
+        data.add(javaTime);                                         //java.time.LocalTime
+        data.add(javaDateTime.atOffset(java.time.ZoneOffset.UTC));  //java.time.OffsetDateTime
+        data.add(javaTime.atOffset(java.time.ZoneOffset.UTC));      //java.time.OffsetTime
+        data.add(javaDateTime.atZone(java.time.ZoneId.of("Z")));    //java.time.ZonedDateTime
 
         Map<Object, Object> failures = Maps.newIdentityHashMap();
         for (Object dt : data) {
