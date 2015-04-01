@@ -107,9 +107,16 @@ public class SubqueriesTest extends AbstractJDOTest {
             System.out.println(price);
         }
     }
-    
 
-    
+    @Test
+    public void In_List() {
+        query().from(product)
+               .where(product.name.in(
+                       sub().from(other).where(other.description.eq("AAA")).list(other.name)),
+                      product.description.eq("BBB"))
+               .list(product);
+    }
+
     @BeforeClass
     public static void doPersist() {
         // Persistence of a Product and a Book.
