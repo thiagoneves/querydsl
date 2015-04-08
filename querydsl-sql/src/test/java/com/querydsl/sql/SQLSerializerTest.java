@@ -328,10 +328,10 @@ public class SQLSerializerTest {
         SQLQuery query = new SQLQuery(SQLTemplates.DEFAULT);
         query.withRecursive(sub, sub.get(e.id), sub.get(e.firstname), sub.get(e.superiorId)).as(
                 sq().unionAll(
-                    sq().from(e).where(e.firstname.eq("Mike"))
-                        .list(e.id, e.firstname, e.superiorId),
-                    sq().from(e, sub).where(e.superiorId.eq(sub.get(e.id)))
-                        .list(e.id, e.firstname, e.superiorId)))
+                        sq().from(e).where(e.firstname.eq("Mike"))
+                                .list(e.id, e.firstname, e.superiorId),
+                        sq().from(e, sub).where(e.superiorId.eq(sub.get(e.id)))
+                                .list(e.id, e.firstname, e.superiorId)))
              .from(sub);
 
         QueryMetadata md = query.getMetadata();
@@ -361,4 +361,11 @@ public class SQLSerializerTest {
         assertEquals("datediff('year',EMPLOYEE.DATEFIELD,(date '1970-01-01'))", serializer.toString());
     }
 
+    @Test
+    public void Multiplication() {
+        SQLSerializer serializer = new SQLSerializer(Configuration.DEFAULT);
+        serializer.setUseLiterals(true);
+        serializer.handle(employee.salary.multiply(1.000E5).multiply(500).asc());
+        assertEquals("EMPLOYEE.salary * 50000000 ASC", serializer.toString());
+    }
 }
