@@ -38,11 +38,11 @@ import com.querydsl.core.util.MathUtils;
  */
 public class JPQLSerializer extends SerializerBase<JPQLSerializer> {
 
-    private static final Set<Operator> NUMERIC = ImmutableSet.<Operator>of(
+    private static final Set<? extends Operator> NUMERIC = EnumSet.of(
             Ops.ADD, Ops.SUB, Ops.MULT, Ops.DIV,
             Ops.LT, Ops.LOE, Ops.GT, Ops.GOE, Ops.BETWEEN);
 
-    private static final Set<Operator> CASE_OPS = ImmutableSet.<Operator>of(
+    private static final Set<? extends Operator> CASE_OPS = EnumSet.of(
             Ops.CASE_EQ_ELSE, Ops.CASE_ELSE);
 
     private static final String COMMA = ", ";
